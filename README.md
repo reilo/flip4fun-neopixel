@@ -1,0 +1,1 @@
+Arduino library for creating overlay effects on single-wire-based LED strips.
