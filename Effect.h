@@ -19,7 +19,7 @@ public:
   virtual void end();
 };
 
-class Oscillation : public Effect {
+class Wave : public Effect {
 protected:
   uint32_t m_period;
   uint32_t m_color;
@@ -27,7 +27,7 @@ protected:
   bool m_isRising;
 
 public:
-  Oscillation(uint16_t n, uint32_t period, uint32_t color);
+  Wave(uint16_t n, uint32_t period, uint32_t color);
   void update(unsigned long millis, uint32_t colors[]) override;
 };
 
@@ -41,15 +41,26 @@ public:
   void update(unsigned long millis, uint32_t colors[]) override;
 };
 
-class Arrow : public Effect {
+class FlashComplex : public Effect {
+protected:
+  uint16_t m_len;
+  uint16_t *m_intervals;
+  uint32_t m_color;
+  uint16_t m_currentInterval;
+
+public:
+  FlashComplex(uint16_t n, uint16_t len, uint16_t *intervals, uint32_t color);
+  void update(unsigned long millis, uint32_t colors[]) override;
+};
+
+class Racer : public Effect {
 protected:
   uint16_t m_period;
   uint32_t m_color;
   uint16_t m_pos;
 
 public:
-  Arrow(uint16_t n, uint32_t period, uint32_t color);
-  void begin() override;
+  Racer(uint16_t n, uint32_t period, uint32_t color);
   void update(unsigned long millis, uint32_t colors[]) override;
 };
 

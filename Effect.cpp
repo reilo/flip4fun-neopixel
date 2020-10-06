@@ -11,11 +11,12 @@ void Effect::begin() { m_beginRequest = true; }
 
 void Effect::end() { m_endRequest = true; }
 
-Oscillation::Oscillation(uint16_t n, uint32_t period, uint32_t color)
+Wave::Wave(uint16_t n, uint32_t period, uint32_t color)
     : Effect(n), m_period(period), m_color(color), m_currVal(0),
       m_isRising(true) {}
 
-void Oscillation::update(unsigned long millis, uint32_t colors[]) {
+void Wave::update(unsigned long millis, uint32_t colors[]) {
+
   if (m_beginRequest) {
     m_running = true;
     m_beginRequest = false;
@@ -68,6 +69,7 @@ Flash::Flash(uint16_t n, uint32_t period, uint32_t color)
     : Effect(n), m_period(period), m_color(color) {}
 
 void Flash::update(unsigned long millis, uint32_t colors[]) {
+
   bool isOn = false;
 
   if (m_beginRequest) {
@@ -86,26 +88,67 @@ void Flash::update(unsigned long millis, uint32_t colors[]) {
     }
   } else {
     if (m_endRequest) {
-      m_running = false;
-      m_endRequest = false;
+      m_running = m_endRequest = false;
     }
   }
 }
 
-Arrow::Arrow(uint16_t n, uint32_t period, uint32_t color)
-    : Effect(n), m_period(period), m_color(color), m_pos(0) {}
+FlashComplex::FlashComplex(uint16_t n, uint16_t len, uint16_t *intervals,
+                           uint32_t color)
+    : Effect(n), m_len(len), m_intervals(intervals), m_color(color) {}
 
-void Arrow::begin() {
-  Effect::begin();
-  m_pos = 0;
-}
+void FlashComplex::update(unsigned long millis, uint32_t colors[]) {
 
-void Arrow::update(unsigned long millis, uint32_t colors[]) {
   bool isOn = false;
 
   if (m_beginRequest) {
     m_beginRequest = false;
     m_running = true;
+    m_prevMillis = millis;
+    m_currentInterval = 0;
+  }
+
+  if (!m_running) {
+    return;
+  }
+
+  if (m_currentInterval == m_len) {
+    if (m_endRequest) {
+      m_running = m_endRequest = false;
+    }
+    return;
+  }
+
+  bool expired = (millis - m_prevMillis >= m_intervals[m_currentInterval]);
+  isOn = (m_currentInterval % 2 == 0) ? !expired : expired;
+
+  if (expired) {
+    m_prevMillis = millis;
+    m_currentInterval++;
+  }
+
+  if (m_currentInterval == m_len) {
+    return;
+  }
+
+  if (isOn) {
+    for (int i = 0; i < m_n; i++) {
+      colors[i] = m_color;
+    }
+  }
+}
+
+Racer::Racer(uint16_t n, uint32_t period, uint32_t color)
+    : Effect(n), m_period(period), m_color(color), m_pos(0) {}
+
+void Racer::update(unsigned long millis, uint32_t colors[]) {
+
+  bool isOn = false;
+
+  if (m_beginRequest) {
+    m_beginRequest = false;
+    m_running = true;
+    m_pos = 0;
     m_prevMillis = millis;
   }
 

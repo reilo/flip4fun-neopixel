@@ -29,5 +29,3 @@ static void RGB(uint32_t color, uint8_t rgb[]) {
 }
 
 #endif
-
-// Trigger
