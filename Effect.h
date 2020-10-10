@@ -3,65 +3,55 @@
 
 #include <Arduino.h>
 
-class Effect {
+class SingleColorEffect {
 protected:
-  uint16_t m_n;
+  uint32_t m_color;
+  bool m_autoStop;
   unsigned long m_prevMillis;
-  bool m_beginRequest;
   bool m_running;
-  bool m_endRequest;
 
 public:
-  Effect(uint16_t n);
-  ~Effect();
-  virtual void begin();
-  virtual void update(unsigned long millis, uint32_t colors[]);
-  virtual void end();
+  SingleColorEffect(uint32_t color, bool autoStop);
+  ~SingleColorEffect();
+  virtual void start(unsigned long millis);
+  virtual uint32_t update(unsigned long millis);
+  virtual void stop() { m_running = false; }
+  virtual bool running() { return m_running; }
 };
 
-class Wave : public Effect {
+class Wave : public SingleColorEffect {
 protected:
   uint32_t m_period;
-  uint32_t m_color;
-  uint32_t m_currVal;
-  bool m_isRising;
+  uint32_t m_value;
+  bool m_rising;
 
 public:
-  Wave(uint16_t n, uint32_t period, uint32_t color);
-  void update(unsigned long millis, uint32_t colors[]) override;
+  Wave(uint32_t period, uint32_t color);
+  void start(unsigned long millis) override;
+  uint32_t update(unsigned long millis) override;
+  uint32_t getColor();
+  void setColor(uint32_t color);
 };
 
-class Flash : public Effect {
+class Flash : public SingleColorEffect {
 protected:
   uint16_t m_period;
-  uint32_t m_color;
 
 public:
-  Flash(uint16_t n, uint32_t period, uint32_t color);
-  void update(unsigned long millis, uint32_t colors[]) override;
+  Flash(uint32_t period, uint32_t color);
+  uint32_t update(unsigned long millis) override;
 };
 
-class FlashComplex : public Effect {
+class FlashComplex : public SingleColorEffect {
 protected:
-  uint16_t m_len;
+  uint16_t m_nIntervals;
   uint16_t *m_intervals;
-  uint32_t m_color;
   uint16_t m_currentInterval;
 
 public:
-  FlashComplex(uint16_t n, uint16_t len, uint16_t *intervals, uint32_t color);
-  void update(unsigned long millis, uint32_t colors[]) override;
-};
-
-class Racer : public Effect {
-protected:
-  uint16_t m_period;
-  uint32_t m_color;
-  uint16_t m_pos;
-
-public:
-  Racer(uint16_t n, uint32_t period, uint32_t color);
-  void update(unsigned long millis, uint32_t colors[]) override;
+  FlashComplex(uint16_t nIntervals, uint16_t *intervals, uint32_t color);
+  void start(unsigned long millis) override;
+  uint32_t update(unsigned long millis) override;
 };
 
 #endif

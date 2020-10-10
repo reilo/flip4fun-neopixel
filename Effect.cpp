@@ -1,50 +1,49 @@
-#include "Effect.h"
-#include "Base.h"
+#include "Flip4fun_NeoPixel.h"
 
-Effect::Effect(uint16_t n)
-    : m_n(n), m_prevMillis(0), m_running(false), m_beginRequest(false),
-      m_endRequest(false) {}
+SingleColorEffect::SingleColorEffect(uint32_t color, bool autoStop)
+    : m_color(color), m_autoStop(autoStop), m_running(false) {}
 
-Effect::~Effect() {}
+void SingleColorEffect::start(unsigned long millis) {
+  m_running = true;
+  m_prevMillis = millis;
+}
 
-void Effect::begin() { m_beginRequest = true; }
+Wave::Wave(uint32_t period, uint32_t color)
+    : SingleColorEffect(color, false), m_period(period), m_value(0), m_rising(true) {}
 
-void Effect::end() { m_endRequest = true; }
+void Wave::start(unsigned long millis) {
+  m_value = 0;
+  m_rising = true;
+  SingleColorEffect::start(millis);
+}
 
-Wave::Wave(uint16_t n, uint32_t period, uint32_t color)
-    : Effect(n), m_period(period), m_color(color), m_currVal(0),
-      m_isRising(true) {}
+uint32_t Wave::update(unsigned long millis) {
 
-void Wave::update(unsigned long millis, uint32_t colors[]) {
-
-  if (m_beginRequest) {
-    m_running = true;
-    m_beginRequest = false;
-  } else if (!m_running) {
-    return;
+  if (!m_running) {
+    return 0;
   }
 
   bool update = false;
 
-  if (millis - m_prevMillis > m_period / (MAX_COLOR + 1) / 2) {
+  if (millis - m_prevMillis > m_period / (MAX_COLOR + 1) / 4) {
     m_prevMillis = millis;
     update = true;
   }
 
   if (update) {
-    if (m_isRising) {
-      if (m_currVal >= MAX_COLOR) {
-        m_currVal--;
-        m_isRising = false;
+    if (m_rising) {
+      if (m_value >= MAX_COLOR) {
+        m_value--;
+        m_rising = false;
       } else {
-        m_currVal++;
+        m_value++;
       }
     } else {
-      if (m_currVal <= 0) {
-        m_currVal++;
-        m_isRising = true;
+      if (m_value <= 0) {
+        m_value++;
+        m_rising = true;
       } else {
-        m_currVal--;
+        m_value--;
       }
     }
   }
@@ -52,71 +51,60 @@ void Wave::update(unsigned long millis, uint32_t colors[]) {
   uint8_t rgb[3];
   RGB(m_color, rgb);
   for (int i = 0; i < 3; i++) {
-    rgb[i] = rgb[i] * m_currVal / MAX_COLOR;
+    rgb[i] = rgb[i] * m_value / MAX_COLOR;
   }
   uint32_t color = Color(rgb);
 
-  for (int i = 0; i < m_n; i++) {
-    colors[i] = color;
-  }
-
-  if (m_endRequest && m_currVal == 0) {
-    m_running = m_endRequest = false;
-  }
+  return color;
 }
 
-Flash::Flash(uint16_t n, uint32_t period, uint32_t color)
-    : Effect(n), m_period(period), m_color(color) {}
+uint32_t Wave::getColor() { return m_color; }
 
-void Flash::update(unsigned long millis, uint32_t colors[]) {
+void Wave::setColor(uint32_t color) { m_color = color; }
+
+Flash::Flash(uint32_t period, uint32_t color)
+    : SingleColorEffect(color ,true), m_period(period) {}
+
+uint32_t Flash::update(unsigned long millis) {
 
   bool isOn = false;
-
-  if (m_beginRequest) {
-    m_beginRequest = false;
-    m_running = true;
-    m_prevMillis = millis;
-  }
+  uint32_t color = 0;
 
   if (m_running) {
     isOn = (millis - m_prevMillis < m_period);
   }
 
   if (isOn) {
-    for (int i = 0; i < m_n; i++) {
-      colors[i] = m_color;
-    }
+    color = m_color;
   } else {
-    if (m_endRequest) {
-      m_running = m_endRequest = false;
-    }
+    m_running = false;
   }
+
+  return color;
 }
 
-FlashComplex::FlashComplex(uint16_t n, uint16_t len, uint16_t *intervals,
+FlashComplex::FlashComplex(uint16_t nIntervals, uint16_t *intervals,
                            uint32_t color)
-    : Effect(n), m_len(len), m_intervals(intervals), m_color(color) {}
+    : SingleColorEffect(color, true), m_nIntervals(nIntervals),
+      m_intervals(intervals) {}
 
-void FlashComplex::update(unsigned long millis, uint32_t colors[]) {
+void FlashComplex::start(unsigned long millis) {
+
+  m_currentInterval = 0;
+  SingleColorEffect::start(millis);
+}
+
+uint32_t FlashComplex::update(unsigned long millis) {
 
   bool isOn = false;
 
-  if (m_beginRequest) {
-    m_beginRequest = false;
-    m_running = true;
-    m_prevMillis = millis;
-    m_currentInterval = 0;
-  }
-
   if (!m_running) {
-    return;
+    return 0;
   }
 
-  if (m_currentInterval == m_len) {
-    if (m_endRequest) {
-      m_running = m_endRequest = false;
-    }
-    return;
+  if (m_currentInterval == m_nIntervals) {
+      m_running = false;
+      return 0;
   }
 
   bool expired = (millis - m_prevMillis >= m_intervals[m_currentInterval]);
@@ -127,44 +115,13 @@ void FlashComplex::update(unsigned long millis, uint32_t colors[]) {
     m_currentInterval++;
   }
 
-  if (m_currentInterval == m_len) {
-    return;
+  if (m_currentInterval == m_nIntervals) {
+    return 0;
   }
 
   if (isOn) {
-    for (int i = 0; i < m_n; i++) {
-      colors[i] = m_color;
-    }
-  }
-}
-
-Racer::Racer(uint16_t n, uint32_t period, uint32_t color)
-    : Effect(n), m_period(period), m_color(color), m_pos(0) {}
-
-void Racer::update(unsigned long millis, uint32_t colors[]) {
-
-  bool isOn = false;
-
-  if (m_beginRequest) {
-    m_beginRequest = false;
-    m_running = true;
-    m_pos = 0;
-    m_prevMillis = millis;
+    return m_color;
   }
 
-  if (m_running) {
-    if (millis - m_prevMillis >= m_period) {
-      m_pos++;
-      m_prevMillis = millis;
-    }
-    isOn = (m_pos < m_n);
-  }
-
-  if (isOn) {
-    colors[m_pos] = m_color;
-  } else {
-    if (m_endRequest) {
-      m_running = m_endRequest = false;
-    }
-  }
+  return 0;
 }

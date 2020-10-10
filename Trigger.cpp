@@ -1,5 +1,4 @@
-#include "Trigger.h"
-#include "Base.h"
+#include "Flip4fun_NeoPixel.h"
 
 Trigger::Trigger() {}
 
