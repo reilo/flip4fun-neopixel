@@ -15,6 +15,8 @@ public:
   ~SingleColorEffect();
   virtual void start(unsigned long millis);
   virtual uint32_t update(unsigned long millis);
+  uint32_t getColor() { return m_color; }
+  void setColor(uint32_t color) { m_color = color; }
   virtual void stop() { m_running = false; }
   virtual bool running() { return m_running; }
 };
@@ -29,8 +31,6 @@ public:
   Wave(uint32_t period, uint32_t color);
   void start(unsigned long millis) override;
   uint32_t update(unsigned long millis) override;
-  uint32_t getColor();
-  void setColor(uint32_t color);
 };
 
 class Flash : public SingleColorEffect {

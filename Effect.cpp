@@ -58,10 +58,6 @@ uint32_t Wave::update(unsigned long millis) {
   return color;
 }
 
-uint32_t Wave::getColor() { return m_color; }
-
-void Wave::setColor(uint32_t color) { m_color = color; }
-
 Flash::Flash(uint32_t period, uint32_t color)
     : SingleColorEffect(color ,true), m_period(period) {}
 
