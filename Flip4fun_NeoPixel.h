@@ -15,6 +15,7 @@
 #define YELLOW 0x00ffff00
 #define WHITE 0x00ffffff
 #define ORANGE 0x00ff7f00
+#define PURPLE 0x00f700f7
 
 static uint32_t Color(uint8_t r, uint8_t g, uint8_t b) {
   return ((uint32_t)r << 16) | ((uint32_t)g << 8) | b;
@@ -32,5 +33,6 @@ static void RGB(uint32_t color, uint8_t rgb[]) {
 
 #include <Effect.h>
 #include <Trigger.h>
+#include <Switcher.h>
 
 #endif
