@@ -78,8 +78,9 @@ void loop() {
   }
   // Set the appropriate ambilight color and determine the current intensity
   ambilight->setColor(color);
+  ambilight->update(m);
   if (ambilight->running()) {
-    color = ambilight->update(m);
+    color = ambilight->getColor();
   }
 
   // Determine whether the pop bumpers flasher is lit - if yes override ambilight color

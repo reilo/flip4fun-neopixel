@@ -12,13 +12,14 @@ SingleColorEffect *flashComplex = new FlashComplex(7, (uint16_t[7]) {
 Trigger *waveTick = new Tick(3000);
 Trigger *tick = new Tick(1800);
 Trigger *tickRandom = new TickRandom(3000, 6000);
+Switcher *blink = new Blink(100, 200);
 
 void setup() {
 
   unsigned long m = millis();
 
-  strip[0] = new Adafruit_NeoPixel(72, 10, NEO_GRB + NEO_KHZ800); // undercab left
-  strip[1] = new Adafruit_NeoPixel(72, 11, NEO_GRB + NEO_KHZ800); // undercab right
+  strip[0] = new Adafruit_NeoPixel(58, 10, NEO_GRB + NEO_KHZ800); // undercab left
+  strip[1] = new Adafruit_NeoPixel(58, 11, NEO_GRB + NEO_KHZ800); // undercab right
   strip[2] = new Adafruit_NeoPixel(38, 12, NEO_GRB + NEO_KHZ800); // backbox left
   strip[3] = new Adafruit_NeoPixel(38, 13, NEO_GRB + NEO_KHZ800); // backbox right
 
@@ -35,6 +36,9 @@ void setup() {
   waveTick->start(m);
   tick->start(m);
   tickRandom->start(m);
+  blink->start(m);
+
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -42,20 +46,22 @@ void loop() {
   unsigned long m = millis();
   uint32_t color = 0;
   uint32_t flashColor = 0;
+  char buf[64];
 
-  //if (waveTick->read(m)) {
-  //  ambilight->setColor(ambilight->getColor() == BLUE ? RED : BLUE);
-  //}
+  if (waveTick->read(m)) {
+    ambilight->setColor(ambilight->getColor() == BLUE ? RED : BLUE);
+  }
+  ambilight->update(m);
   if (ambilight->running()) {
-    color = ambilight->update(m);
+    color = ambilight->getColor();
   }
 
   if (tick->read(m)) {
     flash->start(m);
   }
-  flashColor = 0;
+  flash->update(m);
   if (flash->running()) {
-    flashColor = flash->update(m);
+    flashColor = flash->getColor();
     if (flashColor != 0) {
       color = flashColor;
     }
@@ -64,18 +70,21 @@ void loop() {
   if (tickRandom->read(m)) {
     flashComplex->start(m);
   }
-  flashColor = 0;
+  flashComplex->update(m);
   if (flashComplex->running()) {
-    flashColor = flashComplex->update(m);
+    flashColor = flashComplex->getColor();
     if (flashColor != 0) {
       color = flashColor;
     }
   }
 
   uint16_t inFlash = digitalRead(7);
-  if (inFlash == HIGH) {
+  if (blink->read(m, inFlash == LOW)) {
+    //if (inFlash == LOW) {
     color = WHITE;
   }
+  sprintf(buf, "%d", m);
+  Serial.println(buf);
 
   for (int i = 0; i < 4; i++) {
     strip[i]->fill(color, 0, strip[i]->numPixels());
