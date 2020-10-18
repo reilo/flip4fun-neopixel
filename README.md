@@ -8,4 +8,4 @@
 
 ![LM393 Photo Sensor][photosensor]
 
-[photosensor]: https://github.com/reilo/flip4fun-neopixel/blob/[branch]/pictures/LM393-Photo-Sensor.jpg?raw=true "LM393 Photo Sensor"
+[photosensor]: https://github.com/reilo/flip4fun-neopixel/blob/main/pictures/LM393-Photo-Sensor.jpg?raw=true "LM393 Photo Sensor"
