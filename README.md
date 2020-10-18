@@ -10,6 +10,8 @@ The actual challenge of the project is to find out the current game situation. U
 
 Due to the fact not being an electronics engineer and in order not to disturb the sensitive pinball electronics we decided to simply read the state of lamps and flashers from below the playfield using photo sensors.
 
+Check out this [YouTube video](https://www.youtube.com/watch?v=rxIm8FgeuAI) to watch Star Trek with ambilight.
+
 ## Hardware
 
 ### LED strips
