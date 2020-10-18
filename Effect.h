@@ -21,7 +21,7 @@ public:
 
 /*****************************************************************************/
 
-class SingleColorEffect : public Effect {
+class SingleColorEffect : virtual public Effect {
 protected:
   uint32_t m_color;
 
@@ -30,6 +30,19 @@ public:
   ~SingleColorEffect();
   virtual uint32_t getColor();
   virtual void setColor(uint32_t color);
+};
+
+/*****************************************************************************/
+
+class MovingEffect : virtual public Effect {
+protected:
+  uint8_t m_size;
+  uint8_t m_offset;
+
+public:
+  MovingEffect(uint8_t size, bool autoStop);
+  ~MovingEffect();
+  virtual uint8_t getOffset();
 };
 
 /*****************************************************************************/
@@ -73,6 +86,17 @@ public:
   void start(unsigned long millis) override;
   void update(unsigned long millis) override;
   uint32_t getColor() override;
+};
+
+/*****************************************************************************/
+
+class Racer : public MovingEffect, SingleColorEffect {
+protected:
+  unsigned long m_period;
+
+public:
+  Racer(uint8_t size, uint32_t color, unsigned long period);
+  void update(unsigned long millis) override;
 };
 
 #endif

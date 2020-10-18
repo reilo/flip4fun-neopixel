@@ -24,9 +24,16 @@ void SingleColorEffect::setColor(uint32_t color) { m_color = color; }
 
 /*****************************************************************************/
 
+MovingEffect::MovingEffect(uint8_t size, bool autoStop)
+    : Effect(autoStop), m_size(size), m_offset(0) {}
+
+uint8_t MovingEffect::getOffset() { return m_offset; }
+
+/*****************************************************************************/
+
 Wave::Wave(uint32_t period, uint32_t color)
-    : SingleColorEffect(color, false), m_period(period), m_value(0),
-      m_rising(true) {}
+    : SingleColorEffect(color, false), Effect(false), m_period(period),
+      m_value(0), m_rising(true) {}
 
 void Wave::start(unsigned long millis) {
   SingleColorEffect::start(millis);
@@ -75,7 +82,8 @@ uint32_t Wave::getColor() {
 /*****************************************************************************/
 
 Flash::Flash(uint32_t period, uint32_t color)
-    : SingleColorEffect(color, true), m_period(period), m_on(false) {}
+    : SingleColorEffect(color, true), Effect(true), m_period(period),
+      m_on(false) {}
 
 void Flash::update(unsigned long millis) {
   if (m_running) {
@@ -87,7 +95,7 @@ void Flash::update(unsigned long millis) {
 
 FlashComplex::FlashComplex(uint16_t nIntervals, uint16_t *intervals,
                            uint32_t color)
-    : SingleColorEffect(color, true), m_nIntervals(nIntervals),
+    : SingleColorEffect(color, true), Effect(true), m_nIntervals(nIntervals),
       m_intervals(intervals), m_on(false) {}
 
 void FlashComplex::start(unsigned long millis) {
@@ -114,3 +122,22 @@ void FlashComplex::update(unsigned long millis) {
 }
 
 uint32_t FlashComplex::getColor() { return m_running && m_on ? m_color : 0; }
+
+/*****************************************************************************/
+
+Racer::Racer(uint8_t size, uint32_t color, unsigned long period)
+    : MovingEffect(size, true), SingleColorEffect(color, true), Effect(true),
+      m_period(period) {}
+
+void Racer::update(unsigned long millis) {
+  if (m_running) {
+    if (m_offset >= m_size) {
+      m_running = false;
+    } else {
+      if (millis - m_prevMillis > m_period) {
+        m_prevMillis = millis;
+        m_offset++;
+      }
+    }
+  }
+}
