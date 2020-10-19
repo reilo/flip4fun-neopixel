@@ -14,6 +14,8 @@ public:
   virtual bool read(unsigned long millis, bool isOn);
 };
 
+/*****************************************************************************/
+
 class Blink : public Switcher {
 protected:
   uint16_t m_minPeriod;
@@ -25,6 +27,7 @@ protected:
 
 public:
   Blink(uint16_t minPeriod, uint16_t maxPeriod);
+  void start(unsigned long millis) override;
   bool read(unsigned long millis, bool isOn) override;
 };
 

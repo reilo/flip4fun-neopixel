@@ -6,6 +6,8 @@ Trigger::~Trigger() {}
 
 void Trigger::start(unsigned long millis) { m_startMillis = millis; }
 
+/*****************************************************************************/
+
 Tick::Tick(unsigned long period) : Trigger(), m_period(period) {}
 
 bool Tick::read(unsigned long millis) {
@@ -16,6 +18,8 @@ bool Tick::read(unsigned long millis) {
   }
   return triggered;
 }
+
+/*****************************************************************************/
 
 TickRandom::TickRandom(unsigned long minPeriod, unsigned long maxPeriod)
     : Tick(0), m_minPeriod(minPeriod), m_maxPeriod(maxPeriod) {}

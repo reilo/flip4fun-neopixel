@@ -8,9 +8,17 @@ void Switcher::start(unsigned long millis) { m_startMillis = millis; }
 
 bool Switcher::read(unsigned long millis, bool isOn) { return isOn; }
 
+/*****************************************************************************/
+
 Blink::Blink(uint16_t minPeriod, uint16_t maxPeriod)
     : Switcher(), m_minPeriod(minPeriod), m_maxPeriod(maxPeriod),
       m_nextPeriod(0), m_running(false) {}
+
+void Blink::start(unsigned long millis) {
+  Switcher::start(millis);
+  m_nextPeriod = 0;
+  m_running = false;
+}
 
 bool Blink::read(unsigned long millis, bool isOn) {
 

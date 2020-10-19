@@ -14,6 +14,8 @@ public:
   virtual bool read(unsigned long millis);
 };
 
+/*****************************************************************************/
+
 class Tick : public Trigger {
 protected:
   unsigned long m_period;
@@ -22,6 +24,8 @@ public:
   Tick(unsigned long period);
   bool read(unsigned long millis) override;
 };
+
+/*****************************************************************************/
 
 class TickRandom : public Tick {
 protected:
