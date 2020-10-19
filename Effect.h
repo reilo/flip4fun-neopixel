@@ -42,6 +42,7 @@ protected:
 public:
   MovingEffect(uint8_t size, bool autoStop);
   ~MovingEffect();
+  void start(unsigned long millis) override;
   virtual uint8_t getOffset();
 };
 

@@ -27,6 +27,11 @@ void SingleColorEffect::setColor(uint32_t color) { m_color = color; }
 MovingEffect::MovingEffect(uint8_t size, bool autoStop)
     : Effect(autoStop), m_size(size), m_offset(0) {}
 
+void MovingEffect::start(unsigned long millis) {
+  m_offset = 0;
+  Effect::start(millis);
+}
+
 uint8_t MovingEffect::getOffset() { return m_offset; }
 
 /*****************************************************************************/
