@@ -2,13 +2,13 @@
 
 ## Motivation and Summary
 
-Goal of this project is to add ambilight multi-color effects to pinball machines. Instead of simple static colors we apply effects depending on the current game situation such as the active mission, running multiball or any other context.
+Goal of this project is to add ambilight multi-color effects to pinball machines. Instead of using static colors the effects should be applied depending on the current game situation such as the active mission, currently running multiball or any other context.
 
-From a hardware perspective we add LED strips below the cabinet and behind the backbox, both to the left and right side. The strips are controlled by a microcontroller, an Arduino Uno in this case.
+From a hardware perspective LED strips are attached below the cabinet and behind the backbox, both to the left and right side. The strips are controlled by a microcontroller, an Arduino Uno in this case.
 
 The actual challenge of the project is to find out the current game situation. Unfortunately pinball manufacturers do not provide any APIs for their machines. The only way is to read the state of lamps, flashers and coils. For the latter two this could be  done directly via measuring the current from the corresponding board connectors. Accessing the multiplexed lamp matrix however seems to be hardly feasible.
 
-Due to the fact not being an electronics engineer and in order not to disturb the sensitive pinball electronics we decided to simply read the state of lamps and flashers from below the playfield using photo sensors.
+Due to the fact not being an electronics engineer and in order not to disturb the sensitive pinball electronics it was decided to simply read the state of lamps and flashers from below the playfield using photo sensors.
 
 Check out this [YouTube video](https://www.youtube.com/watch?v=rxIm8FgeuAI) to watch Star Trek with ambilight.
 
@@ -16,47 +16,47 @@ Check out this [YouTube video](https://www.youtube.com/watch?v=rxIm8FgeuAI) to w
 
 ### LED strips
 
-The Neopixel multi-color LED strips allow us to control each pixel individually and they can easily be programmed using a microcontroller with help of the Neopixel C++ library.
+The Neopixel multi-color LED strips allow controlling each pixel individually and the strips can easily be programmed using a microcontroller with help of the Neopixel C++ library.
 
 ![Neopixel LED Strip][neopixelstrip]
 
-We attach two long LED strips to either side below the cabinet and two shorter LED strips to either side behind the backbox:
+Two long LED strips are attached to either side below the cabinet and two shorter LED strips to either side behind the backbox.
 
 ![Backbox LED Strip][backboxledstrip]
 
-The backbox strips are wired through the little hole on the top of the backbox which is present on all newer Stern pinball machines as a preparation for custom toppers. The undercab strips are wired through one of the holes at the rear of the cabinet.
+The backbox strips are wired through the little hole on the top of the backbox which is present on all newer Stern pinball machines. The undercab strips are wired through one of the holes at the rear of the cabinet.
 
 The DIN (digital in) port is directly connected to a digital output port of the microcontroller. The power supply ports 5VDC and GND are connected to the 5V power supply unit.
 
 ### Photo Sensors
 
-We use a LM393 board integrated with a photo sensor and a potentiometer.
+LM393 boards are used which are integrated with a photo sensor and a potentiometer.
 
 ![LM393 Photo Sensor][photosensor]
 
-The sensor is placed below the playfield beneath the insert whose lighting state we want to read. The example shows how we placed sensors below the mission inserts of Star Trek.
+The sensor is placed below the playfield beneath the insert whose lighting state needs to be read. The example shows how sensors were placed below the mission inserts of Star Trek.
 
 ![Playfield Sensors Details][playfieldsensorsdetails]
 
-The potentiometers allow us to fine-tune the sensitivity of each photo sensor and avoid that any sensor is triggered erroneously from the lighting of a another nearby sensor.
+The potentiometers allow to fine-tune the sensitivity of each photo sensor and avoid that any sensor is triggered erroneously from the lighting of a another nearby sensor.
 
 ![Playfield Sensors][playfieldsensors]
 
 ### Arduino Uno
 
-The Arduino microcontroller is attached wtihin the backbox directly below the existing boards. Fortunately as we are modding a SAM system there is enough space there. We applied an additional shield with clamps for easy installation.
+The Arduino microcontroller is attached wtihin the backbox directly below the existing boards. Fortunately as this is about modding a SAM system there is enough space there. A shield with clamps for easy installation is additionally applied.
 
 ![Arduino][arduinoconnections]
 
-We use 4 digital ports (10-13) to feed the Neopixel strips and 9 ports (1-9) to read the sensor outputs. For this showcase project the Arduino Uno provides us a sufficient number of ports but for larger scaled project with more sensors involved we may need to switch to an Arduino Mega.
+4 digital ports (10-13) are used to feed the Neopixel strips and 9 ports (1-9) to read the sensor outputs. For this showcase project the Arduino Uno provides a sufficient number of ports but for larger scaled project with more sensors involved an Arduino Mega might be a better choice.
 
 ### 5V Power Supply
 
-We install a separate 5v power supply unit within the backbox and connect it directly to the 220V connector of the pinball machine.
+A separate 5V power supply unit has been installed within the backbox and connected directly to the 220V connector of the pinball machine.
 
 ![5V Power Supply][powersupply]
 
-Both Arduino and LED strips are fed from this power supply. Note that one single Neopixel LED consumes up to 63mA which may result - as we install about 200 LEDs in this project - in a maximum of about 12A.
+Both Arduino and LED strips are fed from this power supply. Note that one single Neopixel LED consumes up to 63mA which may result - as about 200 LEDs are installed in this project - in a maximum of about 12A.
 
 ### Setup and Wiring
 
