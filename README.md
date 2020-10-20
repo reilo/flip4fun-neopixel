@@ -2,15 +2,15 @@
 
 ## Motivation and Summary
 
-Goal of this project is to add ambilight multi-color effects to pinball machines. Instead of using static colors the effects should be applied depending on the current game situation such as the active mission, currently running multiball or any other context.
+Goal of this project is to add multi-color ambilight effects to pinball machines. Instead of showing static colors the lighting effects should depend on the current gameplay situation such as the active mission, the currently running multiball or any other events.
 
-From a hardware perspective LED strips are attached below the cabinet and behind the backbox, both to the left and right side. The strips are controlled by a microcontroller, an Arduino Uno in this case.
+The used hardware consists of LED strips which are attached below the cabinet and behind the backbox, both to the left and right side. The strips are controlled by a microcontroller, an Arduino Uno in this case.
 
-The actual challenge of the project is to find out the current game situation. Unfortunately pinball manufacturers do not provide any APIs for their machines. The only way is to read the state of lamps, flashers and coils. For the latter two this could be  done directly via measuring the current from the corresponding board connectors. Accessing the multiplexed lamp matrix however seems to be hardly feasible.
+The actual challenge of the project is to find out the current gameplay situation. Unfortunately pinball manufacturers do not provide any APIs for their machines. The only way is to read the state of coils, flashers, and lamps by sensors. For flashers and coils this could be  done directly by measuring the electric current from the  board connectors. Accessing the multiplexed lamp matrix however seems to be hardly feasible.
 
-Due to the fact not being an electronics engineer and in order not to disturb the sensitive pinball electronics it was decided to simply read the state of lamps and flashers from below the playfield using photo sensors.
+As I am not an electronics engineer and won't risk to disturb the sensitive pinball electronics I decided to simply read the state of lamps and flashers from below the playfield using photo sensors.
 
-Check out this [YouTube video](https://www.youtube.com/watch?v=rxIm8FgeuAI) to watch Star Trek with ambilight.
+Version 1.0 is now ready - check out this [YouTube video](https://www.youtube.com/watch?v=rxIm8FgeuAI) to watch my Star Trek Pro pinball machine with ambilight.
 
 ## Hardware
 
@@ -34,7 +34,7 @@ LM393 boards are used which are integrated with a photo sensor and a potentiomet
 
 ![LM393 Photo Sensor][photosensor]
 
-The sensor is placed below the playfield beneath the insert whose lighting state needs to be read. The example shows how sensors were placed below the mission inserts of Star Trek.
+The sensor is placed below the playfield beneath the insert whose lighting state should be read. The example shows how sensors were placed below the mission inserts of Star Trek.
 
 ![Playfield Sensors Details][playfieldsensorsdetails]
 
@@ -44,7 +44,7 @@ The potentiometers allow to fine-tune the sensitivity of each photo sensor and a
 
 ### Arduino Uno
 
-The Arduino microcontroller is attached wtihin the backbox directly below the existing boards. Fortunately as this is about modding a SAM system there is enough space there. A shield with clamps for easy installation is additionally applied.
+The Arduino microcontroller is attached wtihin the backbox directly below the already built-in original boards. Fortunately as I am modding a SAM system there is enough space available. A shield with clamps for easy installation is additionally applied to the Arduino.
 
 ![Arduino][arduinoconnections]
 
@@ -56,19 +56,19 @@ A separate 5V power supply unit has been installed within the backbox and connec
 
 ![5V Power Supply][powersupply]
 
-Both Arduino and LED strips are fed from this power supply. Note that one single Neopixel LED consumes up to 63mA which may result - as about 200 LEDs are installed in this project - in a maximum of about 12A.
+Both Arduino and LED strips are fed from this power supply. Note that one single Neopixel LED consumes up to 63mA. This may result in worst - as about 200 LEDs are installed in this project - in a maximum of about 12A.
 
 ### Setup and Wiring
 
-The complete backbox setup is shown below - it easily fits into the backbox of a SAM platform based machine. As usual I ran out of proper wire colors - that's the reason for the weird wiring.
+The complete backbox setup is shown below - it easily fits into the backbox of a SAM platform based machine. Plug connectors are used for all connections, so I can quickly mount or unmount my hardware or detach the backbox from the cabinet. As usual I ran out of proper wire colors - that's the reason for the weird wiring.
 
 ![Backbox Setup][backboxwiring]
 
-The wiring below the playfield is a challenge - we need to follow the already existing wiring paths.
+The wiring below the playfield is a challenge - I needed to follow the already existing wiring paths.
 
 ![Playfield Wiring][playfieldwiring]
 
-The bunch of cable for power supply and sensor signals is routed to the back of the playfield and further up to the backbox from below.
+The bunch of cable for the sensors' power supply and output signals is routed to the back of the playfield and further up to the backbox from below.
 
 ### Budget
 
@@ -105,4 +105,4 @@ Total budget around 95 EUR.
 
 ## Software
 
-Under construction. For now refer to the source code.
+May come later. For now refer to the source code.
