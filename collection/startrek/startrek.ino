@@ -11,6 +11,8 @@
      5 - Nero: Purple
      6 - Save the Enterprise: Green
 
+   If no mission is active a light show directly triggered by the mission insert is played.
+
    Additional effects are triggered by the
      7 - Captain's Chair insert
    which lights the front part of the undercab LEDs whitish,
@@ -34,16 +36,22 @@ SingleColorEffect* ambilight = new Wave(2500, BLUE);
 // Ambilight color determined by the current mission
 uint32_t ambilightColors[] = {BLUE, RED, YELLOW, CYAN, PURPLE, GREEN};
 
+// Ambilight strip areas for lightshow
+uint8_t ambilightAreas[][4] = {{0, 2, 0, 16}, {0, 3, 0, 16}, {1, 0, 0, 10}, {1, 2, 16, 22}, {2, 1, 0, 10}, {2, 3, 16, 22}, {3, 0, 10, 32}, {4, 0, 42, 16}, {4, 1, 42, 16}, {5, 1, 10, 32}};
+
 // Determines which of the 6 mission insert is blinking
-Switcher *blink[6];
+SingleSwitcher *blink[6];
 
 // Captain's chair flashing effect
 uint16_t chairPeriods[21] = {232, 216, 158, 192, 96, 168, 84, 144, 72, 120, 60, 96, 48, 72, 36, 60, 30, 48, 24, 36, 18 };
 SingleColorEffect* chairFlash = new FlashComplex(21, chairPeriods, 0x003f3f3f);
 
 // Spinner wave effect
-uint16_t spinnerPeriods[5] = {18, 18, 18, 18, 18};
-SingleColorEffect* spinnerFlash = new FlashComplex(5, spinnerPeriods, WHITE);
+uint16_t spinnerPeriods[9] = {24, 24, 24, 24, 24, 24, 24, 24, 24};
+SingleColorEffect* spinnerFlash = new FlashComplex(9, spinnerPeriods, WHITE);
+
+// Spinner tick
+Tick *spinnerTick = new TickRandom(1000, 3000);
 
 void setup() {
 
@@ -76,6 +84,8 @@ void setup() {
     blink[i]->start(m);
   }
 
+  spinnerTick->start(m);
+
   for (int i = 0; i < 4; i++) {
     strip[i]->begin();
     strip[i]->show();
@@ -88,16 +98,23 @@ void setup() {
 void loop() {
 
   unsigned long m = millis();
-  uint16_t in;
+  uint16_t ins[6];
+  uint8_t in;
   uint32_t ambilightColor = BLUE;
+  boolean isMission = false;
   uint32_t color;
   uint32_t overlayColor;
 
+  // Determine the current state of the mission inserts
+  for (int i = 0; i < 6; i++) {
+    ins[i] = digitalRead(i + 1);
+  }
+
   // Determine the blinking mission insert and set corresponding color
   for (int i = 0; i < 6; i++) {
-    in = digitalRead(i + 1);
-    if (blink[i]->read(m, in == LOW)) {
+    if (blink[i]->read(m, ins[i] == LOW)) {
       ambilightColor = ambilightColors[i];
+      isMission = true;
       break;
     }
   }
@@ -119,10 +136,38 @@ void loop() {
     strip[i]->fill(color, 0, strip[i]->numPixels());
   }
 
+  if (isMission) { // regular play, in mission
+
+    // Determine whether the Captain's Chair insert is lit - if yes set partial effect
+    in = digitalRead(7);
+    if (in == LOW) {
+      if (!chairFlash->running()) {
+        chairFlash->start(m);
+      }
+    }
+    if (chairFlash->running()) {
+      chairFlash->update(m);
+      overlayColor = chairFlash->getColor();
+      for (int i = 0; i < 2; i++) {
+        strip[i]->fill(overlayColor, 0, 10);
+      }
+    }
+  } else { // light show mode, not in mission, though maybe in regular play
+    uint8_t n = 0;
+    for (int i = 0; i < 6; i++) {
+      while (n < 10 && ambilightAreas[n][0] == i) {
+        if (ins[i] == LOW) {
+          strip[ambilightAreas[n][1]]->fill(ambilightColors[i], ambilightAreas[n][2], ambilightAreas[n][3]);
+        }
+        ++n;
+      }
+    }
+  }
+
   // Determine whether the left spinner insert is lit - if yes set partial effect
   in = digitalRead(8);
   if (in == LOW) {
-    if (!spinnerFlash->running()) {
+    if (!spinnerFlash->running() && spinnerTick->read(m)) {
       spinnerFlash->start(m);
     }
   }
@@ -130,21 +175,6 @@ void loop() {
     spinnerFlash->update(m);
     overlayColor = spinnerFlash->getColor();
     strip[2]->fill(overlayColor, 20, strip[2]->numPixels() - 20);
-  }
-
-  // Determine whether the Captain's Chair insert is lit - if yes set partial effect
-  in = digitalRead(7);
-  if (in == LOW) {
-    if (!chairFlash->running()) {
-      chairFlash->start(m);
-    }
-  }
-  if (chairFlash->running()) {
-    chairFlash->update(m);
-    overlayColor = chairFlash->getColor();
-    for (int i = 0; i < 2; i++) {
-      strip[i]->fill(overlayColor, 0, 10);
-    }
   }
 
   // Update all strips
