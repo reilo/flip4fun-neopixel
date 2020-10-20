@@ -11,12 +11,29 @@ public:
   Switcher();
   ~Switcher();
   virtual void start(unsigned long millis);
+};
+
+/*****************************************************************************/
+
+class SingleSwitcher : public Switcher {
+public:
+  SingleSwitcher();
   virtual bool read(unsigned long millis, bool isOn);
 };
 
 /*****************************************************************************/
 
-class Blink : public Switcher {
+class MultiSwitcher : public Switcher {
+  protected:
+  uint8_t m_ports;
+public:
+  MultiSwitcher(uint8_t ports);
+  virtual bool read(unsigned long millis, bool isOn[]);
+};
+
+/*****************************************************************************/
+
+class Blink : public SingleSwitcher {
 protected:
   uint16_t m_minPeriod;
   uint16_t m_maxPeriod;
@@ -29,6 +46,18 @@ public:
   Blink(uint16_t minPeriod, uint16_t maxPeriod);
   void start(unsigned long millis) override;
   bool read(unsigned long millis, bool isOn) override;
+};
+
+/*****************************************************************************/
+
+class BlinkInSync : public MultiSwitcher {
+
+};
+
+/*****************************************************************************/
+
+class BlinkInSeries : public MultiSwitcher {
+
 };
 
 #endif
