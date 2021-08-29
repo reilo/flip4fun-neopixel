@@ -91,8 +91,6 @@ void setup() {
     strip[i]->show();
     strip[i]->setBrightness(255);
   }
-
-  Serial.begin(9600);
 }
 
 void loop() {
